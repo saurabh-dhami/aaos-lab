@@ -1,0 +1,8 @@
+🧈 Project Butter (Smoothness)Vsync: 
+A system metronome that syncs CPU, GPU, and Display to start rendering at the exact same microsecond.
+Choreographer: An internal app coordinator that sequences inputs, animations, and draws strictly on the Vsync pulse.
+Triple Buffering: Adds a third memory tray so the CPU keeps working ahead even if the GPU hits a rendering lag.
+
+📉 Project Svelte (Memory Efficiency)
+zRAM:  Compresses inactive background app memory into a virtual "zip bag" inside RAM instead of using disk swap.
+Broadcast Limits: Blocks background apps from waking up randomly during generic system events to save CPU cycles.
