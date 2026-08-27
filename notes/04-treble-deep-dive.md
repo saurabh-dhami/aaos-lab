@@ -1,23 +1,16 @@
-## Lesson 4 additions (Treble deep dive)
+## 🧩 Core Architecture Framework
 
-- **VINTF**: boot-time compatibility gate. Vendor declares
-  supported HAL versions in /vendor/etc/vintf/manifest.xml;
-  framework declares required versions in a compatibility
-  matrix under /system/etc/vintf/. Init compares them at boot.
-  Mismatch means the device refuses to boot entirely. This is
-  what allows my phone's Android 16 framework to run against
-  VNDK 34 vendor code.
-- **SELinux enforces the partition boundary**, it is not just
-  convention. A framework process physically cannot open a
-  vendor hardware file. Visible via `ls -Z` on
-  /vendor/lib64/hw vs /system/framework.
-- **The real historical bottleneck was silicon vendors, not
-  OEMs.** Qualcomm/MediaTek had to rewrite proprietary drivers
-  per Android version per chip. Treble removed that bottleneck;
-  the OEM bottleneck (/system is still Samsung's) is what
-  Mainline addresses next.
-- **GSI**: pure unmodified AOSP framework flashed onto /system
-  to prove Treble compliance. Vendor partition and VINTF stay
-  untouched, so a compliant device boots. Not a custom ROM.
-  Google uses this via VTS to certify devices before they can
-  ship with Play Services.
+### 1. The Partition Boundary
+Project Treble decouples the monolithic Android OS by creating a absolute separation of concerns across physical storage allocations:
+* **`/system`:** Houses Google’s generic, upstream AOSP framework and system APIs. Updatable independently.
+* **`/vendor`:** Houses the silicon vendor's (Qualcomm/MediaTek) closed-source HAL implementations and device-specific kernel modules. Remains static during OS upgrades.
+
+### 2. The Communication Contract: HIDL & AIDL
+Because processes cannot cross the partition or talk directly due to SELinux, they use a highly strictly versioned IPC mechanism:
+* **HIDL (Hardware Interface Definition Language):** The original legacy interface compiler introduced in Android 8 to auto-generate binderized code between framework and vendor.
+* **Stable AIDL:** Modern Android (Android 11+) has largely deprecated HIDL in favor of Stable AIDL for system-to-vendor communication, enforcing backward compatibility natively.
+
+### 🚗 Summary Analogy
+* **Framework (`/system`)** is the driver.
+* **Hardware Drivers (`/vendor`)** is the car engine.
+* **HIDL/AIDL** is the steering wheel and pedals. You can change the driver completely, but as long as they press the same pedals, the engine reacts exactly the same way.
